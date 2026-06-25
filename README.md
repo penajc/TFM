@@ -78,7 +78,7 @@ Las figuras se guardan en `figures/`.
 
 ## Notas técnicas
 
-- **LLM**: Hugging Face Serverless (Qwen2.5-72B-Instruct) — gratuito
+- **LLM**: NVIDIA NIM Serverless API (Qwen2.5-72B-Instruct) — gratuito
 - **Memoria**: Memori Labs SDK — requiere API key de app.memorilabs.ai
 - **Temperatura**: 0.2 (baja variabilidad, alta reproducibilidad)
 - **Aislamiento**: cada run usa entity_id único → sin contaminación entre experimentos
