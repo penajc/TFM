@@ -24,14 +24,14 @@ Responde SOLO con un objeto JSON válido, sin texto adicional:
 
 class LLMClient:
     def __init__(self, memory_enabled: bool = True):
-        # Soporta claves genéricas, de NVIDIA NIM o de Hugging Face
-        self.llm_key   = os.getenv("LLM_API_KEY") or os.getenv("NVIDIA_API_KEY") or os.getenv("HUGGINGFACE_API_KEY", "")
-        self.llm_model = os.getenv("LLM_MODEL") or os.getenv("HF_MODEL", "qwen/qwen3-next-80b-a3b-instruct")
-        self.base_url  = os.getenv("LLM_BASE_URL") or os.getenv("HF_BASE_URL", "https://integrate.api.nvidia.com/v1")
+        # Configuración principal para NVIDIA NIM (con fallbacks de compatibilidad)
+        self.llm_key   = os.getenv("NVIDIA_API_KEY") or os.getenv("HUGGINGFACE_API_KEY") or os.getenv("LLM_API_KEY", "")
+        self.llm_model = os.getenv("NVIDIA_MODEL") or os.getenv("HF_MODEL") or os.getenv("LLM_MODEL", "qwen/qwen3-next-80b-a3b-instruct")
+        self.base_url  = os.getenv("NVIDIA_BASE_URL") or os.getenv("HF_BASE_URL") or os.getenv("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1")
         self.mem_key   = os.getenv("MEMORI_API_KEY", "")
 
         if not self.llm_key or "your_" in self.llm_key.lower():
-            raise ValueError("API Key del LLM (LLM_API_KEY / NVIDIA_API_KEY / HUGGINGFACE_API_KEY) no configurada en .env")
+            raise ValueError("API Key del LLM (NVIDIA_API_KEY / HUGGINGFACE_API_KEY) no configurada en .env")
         if not self.mem_key or "your-" in self.mem_key.lower():
             raise ValueError("MEMORI_API_KEY no configurada en .env")
 
