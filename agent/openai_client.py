@@ -24,28 +24,29 @@ Responde SOLO con un objeto JSON válido, sin texto adicional:
 
 class LLMClient:
     def __init__(self, memory_enabled: bool = True):
-        self.hf_key   = os.getenv("HUGGINGFACE_API_KEY", "")
-        self.hf_model = os.getenv("HF_MODEL", "Qwen/Qwen2.5-72B-Instruct")
-        self.mem_key  = os.getenv("MEMORI_API_KEY", "")
-        self.base_url = os.getenv("HF_BASE_URL", "https://router.huggingface.co/v1")
+        # Soporta claves genéricas, de NVIDIA NIM o de Hugging Face
+        self.llm_key   = os.getenv("LLM_API_KEY") or os.getenv("NVIDIA_API_KEY") or os.getenv("HUGGINGFACE_API_KEY", "")
+        self.llm_model = os.getenv("LLM_MODEL") or os.getenv("HF_MODEL", "qwen/qwen3-next-80b-a3b-instruct")
+        self.base_url  = os.getenv("LLM_BASE_URL") or os.getenv("HF_BASE_URL", "https://integrate.api.nvidia.com/v1")
+        self.mem_key   = os.getenv("MEMORI_API_KEY", "")
 
-        if not self.hf_key or "your_" in self.hf_key.lower():
-            raise ValueError("HUGGINGFACE_API_KEY no configurada en .env")
+        if not self.llm_key or "your_" in self.llm_key.lower():
+            raise ValueError("API Key del LLM (LLM_API_KEY / NVIDIA_API_KEY / HUGGINGFACE_API_KEY) no configurada en .env")
         if not self.mem_key or "your-" in self.mem_key.lower():
             raise ValueError("MEMORI_API_KEY no configurada en .env")
 
         self.client = OpenAI(
             base_url=self.base_url,
-            api_key=self.hf_key,
+            api_key=self.llm_key,
             timeout=30.0
         )
         self.memori_sdk = None
         if memory_enabled:
             self.memori_sdk = Memori()
             self.memori_sdk.llm.register(self.client)
-            logger.info(f"LLM: {self.hf_model} vía {self.base_url}. Memori SDK registrado.")
+            logger.info(f"LLM: {self.llm_model} vía {self.base_url}. Memori SDK registrado.")
         else:
-            logger.info(f"LLM: {self.hf_model} vía {self.base_url}. Memori SDK omitido (sin memoria).")
+            logger.info(f"LLM: {self.llm_model} vía {self.base_url}. Memori SDK omitido (sin memoria).")
 
     def set_entity_id(self, entity_id: str):
         """Asigna la atribución en el SDK de Memori para evitar errores 422 al registrar turnos."""
@@ -88,7 +89,7 @@ class LLMClient:
         for attempt in range(3):
             try:
                 resp = self.client.chat.completions.create(
-                    model=self.hf_model,
+                    model=self.llm_model,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user",   "content": user_msg}
