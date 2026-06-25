@@ -1,0 +1,10 @@
+memori
+openai
+python-dotenv
+pydantic>=2.0
+pandas
+numpy
+scipy
+matplotlib
+seaborn
+pytest
